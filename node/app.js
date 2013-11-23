@@ -1,20 +1,18 @@
-var io = require('socket.io');
 var UUID = require('node-uuid');
-var express = require('express');
-var app = express();
+var app = require('express')();
+// socket.io needs to use http server for Express 3
 var server = require('http').createServer(app)
+var io = require('socket.io').listen(server);
 
-// socket.io testing
-// needs to use http server for Express 3
-var sio = io.listen(server);
+server.listen(3000);
 
-sio.configure(function () {
-    sio.set('log level', 0);
+io.configure(function () {
+    io.set('log level', 0);
 });
 
 // called when client first connects
 // (at least if i'm reading docs/tutorial right)
-sio.sockets.on('connection', function (client) {
+io.sockets.on('connection', function (client) {
     // use UUID as client id
     client.userid = UUID();
     // inform of connection
@@ -28,9 +26,5 @@ sio.sockets.on('connection', function (client) {
 });
 
 app.get('/', function(request, response){
-    // TODO This path is hardcoded, change it later
-    // Different from tutorial! Seems like it was changed in Express 3
-	response.sendfile('../index.html');
+	response.sendfile(__dirname + '/index.html');
 });
-
-app.listen(3000);
