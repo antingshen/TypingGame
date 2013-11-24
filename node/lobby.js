@@ -21,16 +21,19 @@ lobby.findGame = function (player) {
                 // game instance has host and client attribute
                 game_instance.player_client = player;
                 game_instance.player_count += 1;
-                player.game = game_instance;
+                player.gameid = gameid;
                 this.log(player.userid + ' joined game hosted by ' + game_instance.player_host.userid);
+                return 1;
             } else {
                 // cannot find open game, host one
                 this.createGame(player);
+                return 0;
             }
         }
     } else {
         // cannot find any game, host one
         this.createGame(player);
+        return 0;
     }
 };
 
@@ -45,7 +48,7 @@ lobby.createGame = function (player) {
     };
     this.games[newgame.id] = newgame
     this.game_count++;
-    player.game = newgame;
+    player.gameid = newgame.id;
     this.log(player.userid + ' started hosting a game');
 };
 
@@ -53,10 +56,10 @@ lobby.endGame = function (game) {
     // Removes game, removes game attribute on those players.
     delete this.games[game.id]; // I think this leaves an empty spot. Shouldn't matter unless large scale
     if (game.player_host) {
-        game.player_host.game = null;
+        game.player_host.gameid = null;
     }
     if (game.player_client) {
-        game.player_client.game = null;
+        game.player_client.gameid = null;
     }
     this.game_count -= 1;
     this.log('game hosted by ' + game.player_host.userid + ' was deleted.');

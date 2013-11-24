@@ -5,8 +5,8 @@ app.use('/game', express.static(__dirname + '/static'));
 // socket.io needs to use http server for Express 3
 var server = require('http').createServer(app)
 var io = require('socket.io').listen(server);
-var running_games = {};
 var player_list = {};
+var running_engines = {};
 
 server.listen(3000);
 
@@ -29,54 +29,78 @@ engine_maker = require('./gamecore.js')
 io.sockets.on('connection', function (client) {
     // use UUID as client id
     client.userid = UUID();
-    client.game = null;
+    client.gameid = null;
     player_list[client.userid] = client;
-    // inform of connection
-    client.emit('onconnected', { id: client.userid });
+    
     console.log('socket.io:: client ' + client.userid + ' connected');
     // try to find game
-    lobby.findGame(client);
-    
-    //client.on('startgame', function () {    
-        if (client.game.player_count == 2) {
-            // start the game
-            var game = client.game;
+    num = lobby.findGame(client);
+    // If started hosting, add to game list
+    // Inform of connection and player number
+    client.emit('onconnected', { id: client.userid,
+                                 num: num});
+    //client.on('startgame', function () { 
+        if (lobby.games[client.gameid].player_count == 2) {
+            // start the engine
             var engine = engine_maker();
-            engine.setupGame(game.player_host, game.player_client,
+            var game = lobby.games[client.gameid];
+            engine.setupGame(game.player_host.userid, game.player_client.user_id,
                              getClient(game.player_host.userid), getClient(game.player_client.userid));
-            running_games[game.player_host.userid] = engine;
-            running_games[game.player_client.userid] = engine;
-            // attach a callback on game end
+            running_engines[client.gameid] = engine;
+            // attach a callback on engine end
             engine.endGame = function () {
                 // TODO is there other stuff to do here?
-                delete running_games[game.player_host.userid];
-                delete running_games[game.player_client.userid];
+                delete running_engines[client.gameid];
+                lobby.endGame(client.gameid);
             };
-            console.log('Started game');
+            console.log('Started engine');
         }
     //});
     // called on key press from either client
     client.on('key', function (data) {
+        // the name game here is somewhat misleading
+        // "game" is actually the game engine
         console.log('Key: ' + data.letter);
         console.log('ID: ' + data.id);
-        var game = getGame(data.id);
-        if (game) {
-            game.keyPressed(data.id, data.letter);
+        var engine = getEngine(player_list[data.id].gameid);
+        if (engine) {
+            engine.keyPressed(data.id, data.letter);
+            // send game state to client for verifying
+            // avoid sending client info (can be used to cheat)
+            var temp = new Array();
+            var k = [engine];
+            /*
+            while (true) {
+                var k2 = new Array();
+                for (var obj in k) {
+                    for (var key in Object.keys(obj)) {
+                        if (obj.key in temp) {
+                            console.log(key);
+                        }
+                        temp.push(key);
+                        k2.push(obj.key);
+                    }
+                }
+                k = k2;
+            }
+            */
+            //client.emit('verify', { to_send: engine });
         }
+
     }); 
     // called when client disconnects
     client.on('disconnect', function () {
         console.log('socket.io:: client disconnected ' + client.userid);
         // if player was in game, end that game
         // TODO remove client from player list
-        if (client.game) {
-            lobby.endGame(client.game);
+        if (client.gameid) {
+            lobby.endGame(client.gameid);
         }
     });
 });
 
-function getGame(id) {
-    return running_games[id];
+function getEngine(id) {
+    return running_engines[id];
 }
 
 function getClient(id) {
