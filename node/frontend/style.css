@@ -26,14 +26,17 @@ input{
 .wordBox {
 	position: relative;
 	padding:8px 15px 8px 15px;
-	-webkit-transition: top 1.4s;
-	transition: top 1.4s;
+	-webkit-transition: top 1.4s, opacity 0.5s, -webkit-transform 0.5s;
+	transition: top 1.4s, opacity 0.5s, transform 0.5s;
 	background-color: #00685A;
 	-webkit-border-radius: 0.7em;
     -moz-border-radius: 0.7em; 
     width:100px;
     text-align:center;
+}
 
+.opponentWordBox {
+	opacity: 0.5;
 }
 
 .typed {

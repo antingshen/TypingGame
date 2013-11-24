@@ -20,8 +20,8 @@ function($scope,$timeout){
 	WORD_HEIGHT = 50;
 	WORD_WIDTH = 100;
 
-	//var socket = io.connect('http://localhost');
 	$scope.words = [];
+	$scope.wordMap = {};
 	$scope.initials = {};
 
 
@@ -50,6 +50,11 @@ function($scope,$timeout){
 		if (correct.toLowerCase()==letter){
 			this.typed += correct;
 			this.remaining = this.remaining.slice(1,this.remaining.length);
+			$scope.socket.emit('key', 
+				{'word':this.word, 'letter':letter}
+			)
+		} else {
+			return;
 		}
 		if (this.remaining.length == 0){
 			player.awardWord(this);
@@ -60,11 +65,14 @@ function($scope,$timeout){
 	function destroy(){
 		$timeout.cancel(this.tick);
 		var index = this.container.indexOf(this);
-		this.container.splice(index, 1);
 		$scope.initials[this.word.charAt(0).toLowerCase()] = undefined;
 		if ($scope.currentWord == this){
 			$scope.currentWord = undefined;
 		}
+		this.opacity = 0;
+		$timeout(function(){
+			this.container.splice(index, 1);
+		}.bind(this), 500);
 	}
 
 	function wordTick(){
@@ -91,9 +99,11 @@ function($scope,$timeout){
 		word.typed = "";
 		word.remaining = word.word;
 		word.owner = -1;
+		word.opacity = 1;
 
 		$scope.words.push(word);
 		$scope.initials[word.word.charAt(0).toLowerCase()] = word;
+		$scope.wordMap[word.word] = word;
 		$timeout(word.wordTick);
 	}
 
@@ -105,6 +115,11 @@ function($scope,$timeout){
 		style = {}
 		style.top = String(word.Yoffset)+"px";
 		style.left = String(word.Xoffset)+"px";
+		if (word.opacity == 0){
+			style.opacity = "0";
+			style.transform = "rotateY(90deg)";
+			style['-webkit-transform'] = style.transform;
+		}
 		return style;
 	}
 
@@ -122,7 +137,27 @@ function($scope,$timeout){
 			$scope.currentWord.typeLetter(letter, $scope.player);
 		}
 	}
+
+	$scope.opponentKey = function(obj){
+		var word = $scope.wordMap[obj.word];
+		if (word.owner != 1){
+			word.owner = 1;
+			word.remaining = word.word;
+			word.typed = "";
+		}
+		typeLetter.bind(word)(obj.letter, 1);
+	}
+
+	$scope.socket = io.connect('/');
+
+	$scope.socket.on('newWord', $scope.createWord);
+	// param: {word: String}
+
+	$scope.socket.on('opponentKey', $scope.opponentKey);
+	// param: {word: String, letter: String}
 })
+
+
 
 
 
