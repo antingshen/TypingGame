@@ -1,5 +1,7 @@
 var UUID = require('node-uuid');
-var app = require('express')();
+var express = require('express');
+var app = express();
+app.use('/game', express.static(__dirname + '/static'));
 // socket.io needs to use http server for Express 3
 var server = require('http').createServer(app)
 var io = require('socket.io').listen(server);
@@ -14,15 +16,6 @@ app.get('/', function(request, response){
 
 app.get('/game/', function(request, response){
     response.sendfile(__dirname + '/frontend/index.html');
-});
-app.get('/game/angular.min.js', function(request, response){
-    response.sendfile(__dirname + '/frontend/angular.min.js');
-});
-app.get('/game/app.js', function(request, response){
-    response.sendfile(__dirname + '/frontend/app.js');
-});
-app.get('/game/style.css', function(request, response){
-    response.sendfile(__dirname + '/frontend/style.css');
 });
 
 io.configure(function () {

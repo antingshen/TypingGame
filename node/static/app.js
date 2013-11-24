@@ -8,10 +8,10 @@ function($scope,$timeout){
 	getTestWord = function(){
 		wordNum += 1;
 		var index = wordNum % 26;
-		return {
-			'word':alphabet.charAt(index)+'TestWord',
-			'score':1,
-		}
+		return { word:{
+                'word':alphabet.charAt(index)+'TestWord',
+                'score':1,
+            }};
 	}
 
 	GAME_HEIGHT = 600;
@@ -45,6 +45,7 @@ function($scope,$timeout){
 	}
 
 	function typeLetter(letter, player){
+        console.log(letter);
         var correct = this.remaining.charAt(0);
 		if (correct.toLowerCase()==letter){
 			this.typed += correct;
@@ -91,7 +92,8 @@ function($scope,$timeout){
 		}.bind(this), 500);
 	}
 
-	$scope.createWord = function(word){
+	$scope.createWord = function(data){
+        var word = data.word;
 		word.maxLife = word.maxLife || 1000;
 		word.life = word.maxLife;
 		word.Yoffset = -WORD_HEIGHT;
