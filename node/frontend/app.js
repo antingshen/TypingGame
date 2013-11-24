@@ -50,9 +50,14 @@ function($scope,$timeout){
 		if (correct.toLowerCase()==letter){
 			this.typed += correct;
 			this.remaining = this.remaining.slice(1,this.remaining.length);
-			$scope.socket.emit('key', 
-				{'word':this.word, 'letter':letter}
-			)
+			if (player.pid == 0){
+				$scope.socket.emit('key', 
+					{'word':this.word, 
+					'letter':letter,
+					'id':$scope.player.playerID,
+					}
+				)
+			}
 		} else {
 			return;
 		}
@@ -149,6 +154,9 @@ function($scope,$timeout){
 	}
 
 	$scope.socket = io.connect('/');
+	$scope.socket.on('onconnected', function(data){
+		$scope.player.playerID = data.id;
+	})
 
 	$scope.socket.on('newWord', $scope.createWord);
 	// param: {word: String}
