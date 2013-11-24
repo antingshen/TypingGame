@@ -3,7 +3,6 @@ angular.module('game', [])
 .controller('gameController',
 function($scope,$timeout){
 	s = $scope;
-
 	wordNum = -1;
 	alphabet = "abcdefghijklmnopqrstuvwxyz";
 	getTestWord = function(){
@@ -46,7 +45,7 @@ function($scope,$timeout){
 	}
 
 	function typeLetter(letter, player){
-		var correct = this.remaining.charAt(0);
+        var correct = this.remaining.charAt(0);
 		if (correct.toLowerCase()==letter){
 			this.typed += correct;
 			this.remaining = this.remaining.slice(1,this.remaining.length);

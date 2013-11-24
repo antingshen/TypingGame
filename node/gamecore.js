@@ -13,14 +13,16 @@ var engineMaker = module.exports = function () {
                         userid: null,
                         word: null,
                         partial: null,
-                        score: 0
+                        score: 0,
+                        client: null
                      },
                      player2: {
                         userid: null,
                         word: null,
                         partial: null,
-                        score: 0
-                     }
+                        score: 0,
+                        client: null
+                     },
                    };
     attachFunctions(engine);
     return engine;
@@ -47,25 +49,32 @@ function attachFunctions(engine) {
 
     // TODO consider making these functions not attributes
      
-    engine.setupGame = function (id1, id2) {
+    engine.setupGame = function (id1, id2, socket1, socket2) {
         // Add random words to fill up bank
         engine.player1.userid = id1;
         engine.player2.userid = id2;
+        engine.player1.client = socket1;
+        engine.player2.client = socket2;
         var raw_word;
         var word;
+        // generate words, emit to both clients
         while (this.curr_words.length < this.MAX_WORDS) {
             raw_word = all_words[Math.floor(Math.random()*all_words.length)];
             if (raw_word && !(raw_word[0] in start_letters)) {
                 word = makeWord(raw_word);
                 this.curr_words.push(word);
                 start_letters[raw_word[0]] = word;
+                this.player1.client.emit('newWord', { word: word });
+                this.player2.client.emit('newWord', { word: word });
             }
         }
     };
 
     // Only sends the id, so it shouldn't be able to change game state
+    // Return the word updated, or null if none were updated
     engine.keyPressed = function (userid, ch) {
         // Check given player is in game
+        this.log('keyPressed: ' + userid + ", " + ch);
         if (userid != this.player1.userid && userid != this.player2.userid) {
             this.log("player " + userid + " is not a player in this game.");
         }
@@ -84,10 +93,14 @@ function attachFunctions(engine) {
                 var to_claim = start_letters[ch];
                 if (opp.word == to_claim) {
                     this.log(to_claim.word + " already claimed by " + opp.userid + "!");
-                    return; // TODO maybe a message about this to client?
+                    return null; // TODO maybe a message about this to client?
                 }
                 player.word = to_claim;
                 player.partial = ch;
+                opp.client.emit('opponentKey',
+                                { word: player.word,
+                                  partial: player.partial,
+                                  letter: ch});
             }
         } else {
             // Check if next letter was typed
@@ -95,10 +108,19 @@ function attachFunctions(engine) {
             if (player.word.word[player.partial.length] == ch) {
                 player.partial += ch;
                 if (player.partial == player.word.word) {
+                    opp.client.emit('opponentKey',
+                                    { word: player.word,
+                                      partial: player.partial,
+                                      letter: ch});
                     finishedWord(this, player);
+                } else {
+                    opp.client.emit('opponentKey',
+                                    { word: player.word,
+                                      partial: player.partial,
+                                      letter: ch});
                 }
             } else {
-                return; // TODO maybe a message about this?
+                return null; // TODO maybe a message about this?
             }
         }
     };
@@ -117,6 +139,9 @@ function attachFunctions(engine) {
             var word = makeWord(raw_word);
             this.curr_words[index] = word;
             start_letters[raw_word[0]] = word;
+            // send new word to both clients
+            this.player1.client.emit('newWord', { word: word });
+            this.player2.client.emit('newWord', { word: word });
         }
     };
 }

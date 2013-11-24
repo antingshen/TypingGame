@@ -23,13 +23,15 @@ lobby.findGame = function (player) {
                 game_instance.player_count += 1;
                 player.game = game_instance;
                 this.log(player.userid + ' joined game hosted by ' + game_instance.player_host.userid);
-                return game_instance;
+            } else {
+                // cannot find open game, host one
+                this.createGame(player);
             }
         }
+    } else {
+        // cannot find any game, host one
+        this.createGame(player);
     }
-    // host a game
-    this.createGame(player);
-    return player.game;
 };
 
 lobby.createGame = function (player) {
@@ -58,13 +60,4 @@ lobby.endGame = function (game) {
     }
     this.game_count -= 1;
     this.log('game hosted by ' + game.player_host.userid + ' was deleted.');
-}
-
-lobby.getGame = function (player) {
-    for (var game in games) {
-        if (game.player_host == player.userid || game.player_client == player.userid) {
-            return game;
-        }
-    }
-    return null;
 }
