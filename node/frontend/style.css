@@ -4,30 +4,24 @@
 }
 body {
 		background: rgb(51,51,51);
+
 	position: relative;
-	margin: 0px;
 }
 
 .start{
 	position: absolute;
-	left: 0px;
-	right: 0px;
+	left:45%;
 	top: 55%;
-	height: 50px;
-	width: 150px;
 	font-size: 40px;
 	color:white;
-	cursor: pointer;
-	margin: auto;
+
 }
 
 .start:hover{
 	color:#34D0BA;
 }
 
-.start:click{
 
-}
 
 input{
 	position: absolute;
@@ -37,16 +31,14 @@ input{
 .control{
 	position: absolute;
 	margin-top:0px;
-	height: 50px;
-	width: 94%;
-	margin-left: 3%;
+	height: 15%;
+	width: 100%;
 	background-color: #00808A;
-	padding: 5px 10px 5px 10px;
+	padding: 10px 10px 10px 10px;
 	-webkit-border-radius: 0.7em;
     -moz-border-radius: 0.7em;
     display:inline-block;
     white-space: nowrap;
-    box-sizing: border-box;
 
 }
 
@@ -58,7 +50,7 @@ input{
 }
 
 .wordBox {
-	position: absolute;
+	position: relative;
 	padding:8px 15px 8px 15px;
 	-webkit-transition: top 1.4s, opacity 0.5s, -webkit-transform 0.5s;
 	transition: top 1.4s, opacity 0.5s, transform 0.5s;
@@ -93,18 +85,17 @@ input{
 
 .playerWrap{
 	display: inline-block;
-	position: absolute;
-	left: 10px;
-	top: 5px;
+	width:33%;
+	vertical-align: top;
 	/*background: #FF7F24;*/
 }
 
 
 .opponentWrap{
 	display: inline-block;
-	position: absolute;
-	right: 10px;
-	top: 5px;
+	/*float:right;*/
+	width:33%;
+	vertical-align: top;
 	white-space: nowrap;
 	/*background: #FF7F24;*/
 }
@@ -117,23 +108,8 @@ input{
 }
 .clock{
 	width:33%;
-	margin-left: 33%;
-	margin-right: 33%;
+	margin-left: 100px;
 	vertical-align: top;
 	display: inline-block;
-	text-align: center;
-
+	/*text-align: center;*/
 }
-.clockInner {
-	display: inline-block;
-	width: 60px;
-	height: 40px;
-	font-size: 35px;
-	padding-left: 1px;
-	background-color: black;
-	border-radius: 5px;
-	color:white;
-}
-
-
-

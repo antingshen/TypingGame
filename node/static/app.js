@@ -15,8 +15,8 @@ function($scope,$timeout){
 	}
 
 	GAME_HEIGHT = 600;
-	GAME_WIDTH = 680;
-	WORD_HEIGHT = 50;
+	GAME_WIDTH = window.innerWidth;
+	WORD_HEIGHT = 34;
 	WORD_WIDTH = 100;
 
 	$scope.words = [];
@@ -35,6 +35,7 @@ function($scope,$timeout){
 		player.score = 0;
 		$scope.player = player;
 		player.awardWord = awardWord.bind(player);
+		return player;
 	}
     $scope.socket = io.connect('/');
     // on initial connection, create player
@@ -43,6 +44,9 @@ function($scope,$timeout){
         initPlayer(data.id, data.num);
     });
     
+        $scope.player = initPlayer(data.id);
+    });
+    $scope.opponent = initPlayer(1);
 	inputBox = document.getElementById('inputBox');
 	$scope.bodyClick = function(){
 		inputBox.focus();
@@ -83,7 +87,7 @@ function($scope,$timeout){
 				return;
 			}
             // For test purposes
-			this.life -= 0;
+			this.life -= 2;
 			this.Yoffset = (1-this.life/this.maxLife)*(GAME_HEIGHT+WORD_HEIGHT)-WORD_HEIGHT;
 			this.wordTick();
 		}.bind(this), 500);
@@ -149,6 +153,26 @@ function($scope,$timeout){
 			word.typed = "";
 		}
 		typeLetter.bind(word)(obj.letter, 1);
+	}
+
+	$scope.timeRemaining = 90;
+	$scope.countdownStarted = false;
+	$scope.timerTick = function(){
+		if ($scope.timeRemaining <= 0){
+			while ($scope.words.length){
+				$scope.words[0].destroy();
+			}
+			return;
+		}
+		$timeout(function(){
+			$scope.timeRemaining -= 1;
+			$scope.timerTick();
+		},1000);
+	}
+	$scope.startTimer = function(){
+		$scope.countdownStarted = true;
+		$scope.socket.emit('startGame', {pid:$scope.player.pid});
+		$scope.timerTick();
 	}
 
 	$scope.socket.on('newWord', $scope.createWord);
