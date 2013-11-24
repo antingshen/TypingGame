@@ -163,6 +163,7 @@ function($scope,$timeout){
 	// param: {word: String}
 
 	$scope.socket.on('opponentKey', $scope.opponentKey);
+
 	// param: {word: String, letter: String}
 })
 

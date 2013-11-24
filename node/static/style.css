@@ -8,7 +8,7 @@ body {
 	position: relative;
 }
 
-#start{
+.start{
 	position: absolute;
 	left:45%;
 	top: 55%;
@@ -16,7 +16,7 @@ body {
 	color:white;
 }
 
-#start:hover{
+.start:hover{
 	color:#34D0BA;
 }
 
