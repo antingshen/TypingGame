@@ -33,7 +33,10 @@ input{
     -moz-border-radius: 0.7em; 
     width:100px;
     text-align:center;
+}
 
+.opponentWordBox {
+	opacity: 0.5;
 }
 
 .typed {

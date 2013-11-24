@@ -10,7 +10,7 @@
 		<div class="control">	
 			<div class="scoreBox" ng-bind="player.score"></div>
 		</div>
-		<div class="wordBox" ng-repeat="word in words" ng-style="wordStyle(word)">
+		<div class="wordBox" ng-repeat="word in words" ng-style="wordStyle(word)" ng-class="{'opponentWordBox':word.owner==1}">
 			<span class="typed" ng-bind="word.typed"></span><span class="remaining" ng-bind="word.remaining"></span>
 		</div>
 		<input id="inputBox" autofocus type="text" ng-keypress="keyPressed($event)">

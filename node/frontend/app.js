@@ -20,8 +20,8 @@ function($scope,$timeout){
 	WORD_HEIGHT = 50;
 	WORD_WIDTH = 100;
 
-	//var socket = io.connect('http://localhost');
 	$scope.words = [];
+	$scope.wordMap = {};
 	$scope.initials = {};
 
 
@@ -50,6 +50,11 @@ function($scope,$timeout){
 		if (correct.toLowerCase()==letter){
 			this.typed += correct;
 			this.remaining = this.remaining.slice(1,this.remaining.length);
+			$scope.socket.emit('key', 
+				{'word':this.word, 'letter':letter}
+			)
+		} else {
+			return;
 		}
 		if (this.remaining.length == 0){
 			player.awardWord(this);
@@ -98,6 +103,7 @@ function($scope,$timeout){
 
 		$scope.words.push(word);
 		$scope.initials[word.word.charAt(0).toLowerCase()] = word;
+		$scope.wordMap[word.word] = word;
 		$timeout(word.wordTick);
 	}
 
@@ -131,7 +137,27 @@ function($scope,$timeout){
 			$scope.currentWord.typeLetter(letter, $scope.player);
 		}
 	}
+
+	$scope.opponentKey = function(obj){
+		var word = $scope.wordMap[obj.word];
+		if (word.owner != 1){
+			word.owner = 1;
+			word.remaining = word.word;
+			word.typed = "";
+		}
+		typeLetter.bind(word)(obj.letter, 1);
+	}
+
+	$scope.socket = io.connect('/');
+
+	$scope.socket.on('newWord', $scope.createWord);
+	// param: {word: String}
+
+	$scope.socket.on('opponentKey', $scope.opponentKey);
+	// param: {word: String, letter: String}
 })
+
+
 
 
 
