@@ -18,7 +18,7 @@
 			</div>
 			<div class = "opponentWrap">
 				Opponent Score:
-				<div class="scoreBox opponent" ng-bind="opponent.score"></div>
+				<div class="scoreBox opponent" ng-bind="opponent.score">{{opponent.score}}</div>
 			</div>
 		</div>
 		<div class="wordBox" ng-repeat="word in words" ng-style="wordStyle(word)" ng-class="{'opponentWordBox':word.owner==1}">

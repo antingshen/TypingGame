@@ -28,10 +28,10 @@ function($scope,$timeout){
 		this.score += word.score;
 	};
 	$scope.player = null;
-	var initPlayer = function(pid, num){
+	var initPlayer = function(pid){
 		var player = {};
 		player.pid = pid;
-        player.num = num;
+        player.num = 0;
 		player.score = 0;
 		$scope.player = player;
 		player.awardWord = awardWord.bind(player);
@@ -41,7 +41,7 @@ function($scope,$timeout){
     // on initial connection, create player
     $scope.socket.on('onconnected', function (data) {
         console.log('Connected. ID = ' + data.id);
-        initPlayer(data.id, data.num);
+        initPlayer(data.id);
     });
     // Uh...this is kinda sketchy?
     $scope.opponent = initPlayer(null, 1);
@@ -55,7 +55,9 @@ function($scope,$timeout){
 		if (correct.toLowerCase()==letter) {
 			this.typed += correct;
 			this.remaining = this.remaining.slice(1,this.remaining.length);
-            $scope.socket.emit('key', {letter:letter, id:$scope.player.pid});
+            if (player.pid) {
+                $scope.socket.emit('key', {letter:letter, id:$scope.player.pid});
+            }
 		} else {
 			return;
 		}
@@ -150,7 +152,7 @@ function($scope,$timeout){
 			word.remaining = word.word;
 			word.typed = "";
 		}
-		typeLetter.bind(word)(obj.letter, 1);
+		typeLetter.bind(word)(obj.letter, $scope.opponent);
 	};
 
 	$scope.timeRemaining = 90;
