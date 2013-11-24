@@ -62,5 +62,5 @@ lobby.endGame = function (game) {
         game.player_client.gameid = null;
     }
     this.game_count -= 1;
-    this.log('game hosted by ' + game.player_host.userid + ' was deleted.');
+    this.log('game was deleted.');
 }

@@ -39,23 +39,26 @@ io.sockets.on('connection', function (client) {
     // Inform of connection and player number
     client.emit('onconnected', { id: client.userid,
                                  num: num});
-    //client.on('startgame', function () { 
-        if (lobby.games[client.gameid].player_count == 2) {
-            // start the engine
-            var engine = engine_maker();
-            var game = lobby.games[client.gameid];
-            engine.setupGame(game.player_host.userid, game.player_client.user_id,
-                             getClient(game.player_host.userid), getClient(game.player_client.userid));
-            running_engines[client.gameid] = engine;
-            // attach a callback on engine end
-            engine.endGame = function () {
-                // TODO is there other stuff to do here?
-                delete running_engines[client.gameid];
-                lobby.endGame(client.gameid);
-            };
-            console.log('Started engine');
+    client.on('startGame', function (data) {
+        var player = player_list[data.pid];
+        if (player.gameid) {
+            if (lobby.games[player.gameid].player_count == 2) {
+                // start the engine
+                var engine = engine_maker();
+                var game = lobby.games[player.gameid];
+                engine.setupGame(game.player_host.userid, game.player_client.user_id,
+                                 getClient(game.player_host.userid), getClient(game.player_client.userid));
+                running_engines[player.gameid] = engine;
+                // attach a callback on engine end
+                engine.endGame = function () {
+                    // TODO is there other stuff to do here?
+                    delete running_engines[player.gameid];
+                    lobby.endGame(player.gameid);
+                };
+                console.log('Started engine');
+            }
         }
-    //});
+    });
     // called on key press from either client
     client.on('key', function (data) {
         // the name game here is somewhat misleading
@@ -67,8 +70,6 @@ io.sockets.on('connection', function (client) {
             engine.keyPressed(data.id, data.letter);
             // send game state to client for verifying
             // avoid sending client info (can be used to cheat)
-            var temp = new Array();
-            var k = [engine];
             /*
             while (true) {
                 var k2 = new Array();
