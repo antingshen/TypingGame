@@ -1,0 +1,37 @@
+<html ng-app="game">
+	<head>
+		<script src="angular.min.js"></script>
+		<script src="socket.js"></script>
+		<script src="app.js"></script>
+
+		<style>
+		body {
+			position: relative;
+		}
+		input{
+			position: absolute;
+			top: -1000px;
+		}
+		.wordBox {
+			position: absolute;
+			-webkit-transition: top 1.4s;
+			transition: top 1.4s;
+		}
+		.typed {
+			color: blue;
+		}
+		.scoreBox {
+			position: absolute;
+			top: 2px;
+			left: 2px;
+		}
+		</style>
+	</head>
+	<body ng-controller="gameController" ng-click="bodyClick()">
+		<div class="scoreBox" ng-bind="player.score"></div>
+		<div class="wordBox" ng-repeat="word in words" ng-style="wordStyle(word)">
+			<span class="typed" ng-bind="word.typed"></span><span class="remaining" ng-bind="word.remaining"></span>
+		</div>
+		<input id="inputBox" autofocus type="text" ng-keypress="keyPressed($event)">
+	</body>
+</html>
