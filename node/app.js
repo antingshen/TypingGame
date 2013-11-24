@@ -6,25 +6,33 @@ var io = require('socket.io').listen(server);
 
 server.listen(3000);
 
+app.get('/', function(request, response){
+	response.sendfile(__dirname + '/index.html');
+});
+
 io.configure(function () {
     io.set('log level', 0);
 });
 
-// called when client first connects
+lobby = require('./lobby.js')
+
+// called when client connects
 // (at least if i'm reading docs/tutorial right)
 io.sockets.on('connection', function (client) {
     // use UUID as client id
     client.userid = UUID();
+    client.game = null;
     // inform of connection
     client.emit('onconnected', { id: client.userid });
     console.log('socket.io:: client ' + client.userid + ' connected');
-    
+    // try to find game
+    lobby.findGame(client);
     // called when client disconnects
     client.on('disconnect', function () {
         console.log('socket.io:: client disconnected ' + client.userid);
+        // if player was in game, end that game
+        if (client.game) {
+            lobby.endGame(client.game);
+        }
     });
-});
-
-app.get('/', function(request, response){
-	response.sendfile(__dirname + '/index.html');
 });
