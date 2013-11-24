@@ -7,8 +7,10 @@
 		
 	</head>
 	<body ng-controller="gameController" ng-click="bodyClick()">
-		<div class="control">	
-			<div class="scoreBox" ng-bind="player.score"></div>
+		<div class="control">Player 1:	
+			<div class="scoreBox player" ng-bind="player.score"></div>
+			Player 2:
+			<div class="scoreBox opponent" ng-bind="opponent.score"></div>
 		</div>
 		<div class="wordBox" ng-repeat="word in words" ng-style="wordStyle(word)">
 			<span class="typed" ng-bind="word.typed"></span><span class="remaining" ng-bind="word.remaining"></span>
