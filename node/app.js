@@ -41,6 +41,7 @@ io.sockets.on('connection', function (client) {
                                  num: num});
     client.on('startGame', function (data) {
         var player = player_list[data.pid];
+        // Only start a game once
         if (player.gameid) {
             if (lobby.games[player.gameid].player_count == 2) {
                 // start the engine
@@ -55,6 +56,10 @@ io.sockets.on('connection', function (client) {
                     delete running_engines[player.gameid];
                     lobby.endGame(player.gameid);
                 };
+                // send messages to both clients to remove starts
+                // because game can only be started once this works well enough
+                getClient(game.player_host.userid).emit('gameStarted', {});
+                getClient(game.player_client.userid).emit('gameStarted', {});
                 console.log('Started engine');
             }
         }

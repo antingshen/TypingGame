@@ -175,6 +175,13 @@ function($scope,$timeout){
 		$scope.socket.emit('startGame', {pid:$scope.player.pid});
 		$scope.timerTick();
 	};
+    
+    $scope.socket.on('gameStarted', function (empty) {
+        if (!$scope.countdownStarted) {
+            $scope.countdownStarted = true;
+            $scope.timerTick();
+        }
+    });
 
 	$scope.socket.on('newWord', $scope.createWord);
 	// param: data = {word: word object}
