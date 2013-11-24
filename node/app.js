@@ -36,22 +36,34 @@ io.sockets.on('connection', function (client) {
     console.log('socket.io:: client ' + client.userid + ' connected');
     // try to find game
     lobby.findGame(client);
-    if (client.game.player_count == 2) {
-        // start the game
-        var game = client.game;
-        var engine = engine_maker();
-        engine.setupGame(game.player_host, game.player_client,
-                         getClient(game.player_host.userid), getClient(game.player_client.userid));
-        running_games[game.player_host.userid] = engine;
-        running_games[game.player_client.userid] = engine;
-        // attach a callback on game end
-        engine.endGame = function () {
-            // TODO is there other stuff to do here?
-            delete running_games[game.player_host.userid];
-            delete running_games[game.player_client.userid];
-        };
-        console.log('Started game');
-    }
+    
+    //client.on('startgame', function () {    
+        if (client.game.player_count == 2) {
+            // start the game
+            var game = client.game;
+            var engine = engine_maker();
+            engine.setupGame(game.player_host, game.player_client,
+                             getClient(game.player_host.userid), getClient(game.player_client.userid));
+            running_games[game.player_host.userid] = engine;
+            running_games[game.player_client.userid] = engine;
+            // attach a callback on game end
+            engine.endGame = function () {
+                // TODO is there other stuff to do here?
+                delete running_games[game.player_host.userid];
+                delete running_games[game.player_client.userid];
+            };
+            console.log('Started game');
+        }
+    //});
+    // called on key press from either client
+    client.on('key', function (data) {
+        console.log('Key: ' + data.letter);
+        console.log('ID: ' + data.id);
+        var game = getGame(data.id);
+        if (game) {
+            game.keyPressed(data.id, data.letter);
+        }
+    }); 
     // called when client disconnects
     client.on('disconnect', function () {
         console.log('socket.io:: client disconnected ' + client.userid);
@@ -70,12 +82,3 @@ function getGame(id) {
 function getClient(id) {
     return player_list[id];
 }
-
-io.sockets.on('key', function (data) {
-    console.log('Key: ' + data.letter);
-    console.log('ID: ' + data.id);
-    var game = getGame(data.id);
-    if (game) {
-        game.keyPressed(data.id, data.letter);
-    }
-});

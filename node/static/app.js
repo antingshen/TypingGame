@@ -27,37 +27,35 @@ function($scope,$timeout){
 	function awardWord(word){
 		this.score += word.score;
 	}
-	$scope.players = [];
+	$scope.player = null;
 	var initPlayer = function(pid){
 		var player = {};
 		player.pid = pid;
 		player.score = 0;
-		$scope.players[pid] = player;
+		$scope.player = player;
 		player.awardWord = awardWord.bind(player);
 	}
-	initPlayer(0); initPlayer(1);
-	$scope.player = $scope.players[0];
-	$scope.opponent = $scope.players[1];
-
+    $scope.socket = io.connect('/');
+    $scope.socket.on('onconnected', function (data) {
+        console.log('Connected. ID = ' + data.id);
+        initPlayer(data.id);
+    });
 	inputBox = document.getElementById('inputBox');
 	$scope.bodyClick = function(){
 		inputBox.focus();
 	}
 
 	function typeLetter(letter, player){
-        console.log(letter);
         var correct = this.remaining.charAt(0);
 		if (correct.toLowerCase()==letter){
 			this.typed += correct;
 			this.remaining = this.remaining.slice(1,this.remaining.length);
-			if (player.pid == 0){
-				$scope.socket.emit('key', 
-					{'word':this.word, 
-					'letter':letter,
-					'id':$scope.player.playerID,
-					}
-				)
-			}
+            $scope.socket.emit('key', 
+                {'word':this.word, 
+                'letter':letter,
+                'id':$scope.player.pid,
+                }
+            )
 		} else {
 			return;
 		}
@@ -86,7 +84,8 @@ function($scope,$timeout){
 				this.destroy();
 				return;
 			}
-			this.life -= 50;
+            // For test purposes
+			this.life -= 0;
 			this.Yoffset = (1-this.life/this.maxLife)*(GAME_HEIGHT+WORD_HEIGHT)-WORD_HEIGHT;
 			this.wordTick();
 		}.bind(this), 500);
@@ -154,13 +153,9 @@ function($scope,$timeout){
 		typeLetter.bind(word)(obj.letter, 1);
 	}
 
-	$scope.socket = io.connect('/');
-	$scope.socket.on('onconnected', function(data){
-		$scope.player.playerID = data.id;
-	})
-
 	$scope.socket.on('newWord', $scope.createWord);
-	// param: {word: String}
+	// param: data = {word: word object}
+    // can change this later
 
 	$scope.socket.on('opponentKey', $scope.opponentKey);
 	// param: {word: String, letter: String}
