@@ -42,8 +42,9 @@ input{
 	margin-left: 3%;
 	background-color: #00808A;
 	padding: 5px 10px 5px 10px;
-	-webkit-border-radius: 0.7em;
-    -moz-border-radius: 0.7em;
+	-webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
     display:inline-block;
     white-space: nowrap;
     box-sizing: border-box;
@@ -132,6 +133,7 @@ input{
 	padding-left: 1px;
 	background-color: black;
 	border-radius: 5px;
+	-moz-border-radius;
 	color:white;
 }
 

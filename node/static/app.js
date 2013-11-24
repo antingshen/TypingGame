@@ -164,6 +164,7 @@ function($scope,$timeout){
 			}
 			return;
 		}
+		$scope.bodyClick();
 		$timeout(function(){
 			$scope.timeRemaining -= 1;
 			$scope.timerTick();
