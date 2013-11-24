@@ -60,11 +60,14 @@ function($scope,$timeout){
 	function destroy(){
 		$timeout.cancel(this.tick);
 		var index = this.container.indexOf(this);
-		this.container.splice(index, 1);
 		$scope.initials[this.word.charAt(0).toLowerCase()] = undefined;
 		if ($scope.currentWord == this){
 			$scope.currentWord = undefined;
 		}
+		this.opacity = 0;
+		$timeout(function(){
+			this.container.splice(index, 1);
+		}.bind(this), 500);
 	}
 
 	function wordTick(){
@@ -91,6 +94,7 @@ function($scope,$timeout){
 		word.typed = "";
 		word.remaining = word.word;
 		word.owner = -1;
+		word.opacity = 1;
 
 		$scope.words.push(word);
 		$scope.initials[word.word.charAt(0).toLowerCase()] = word;
@@ -105,6 +109,11 @@ function($scope,$timeout){
 		style = {}
 		style.top = String(word.Yoffset)+"px";
 		style.left = String(word.Xoffset)+"px";
+		if (word.opacity == 0){
+			style.opacity = "0";
+			style.transform = "rotateY(90deg)";
+			style['-webkit-transform'] = style.transform;
+		}
 		return style;
 	}
 

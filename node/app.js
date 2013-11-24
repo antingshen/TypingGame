@@ -10,6 +10,19 @@ app.get('/', function(request, response){
 	response.sendfile(__dirname + '/index.html');
 });
 
+app.get('/game/', function(request, response){
+    response.sendfile(__dirname + '/frontend/index.html');
+});
+app.get('/game/angular.min.js', function(request, response){
+    response.sendfile(__dirname + '/frontend/angular.min.js');
+});
+app.get('/game/app.js', function(request, response){
+    response.sendfile(__dirname + '/frontend/app.js');
+});
+app.get('/game/style.css', function(request, response){
+    response.sendfile(__dirname + '/frontend/style.css');
+});
+
 io.configure(function () {
     io.set('log level', 0);
 });
