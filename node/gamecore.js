@@ -4,8 +4,8 @@ var all_words = fs.readFileSync(__dirname + '/word_list.txt', 'utf8').split('\r\
 var start_letters = {};
 // Set ALL the attributes to null!
 // Except a couple.
-var engine = modules.exports = { curr_words: [],
-                                 MAX_WORDS: 25,
+var engine = module.exports = { curr_words: new Array(),
+                                 MAX_WORDS: 10,
                                  player1: {
                                     userid: null,
                                     word: null,
@@ -13,12 +13,18 @@ var engine = modules.exports = { curr_words: [],
                                     score: 0
                                  },
                                  player2: {
+                                    userid: null,
                                     word: null,
                                     partial: null,
                                     score: 0
                                  }
                                  };
 
+// We need a word object. This creates it.
+function makeWord(text) {
+    return {word: text, score: 1};
+}
+                                 
 // Semi fancy logging!
 engine.log = function (msg) {
     console.log("Game engine: " + msg);
@@ -26,14 +32,18 @@ engine.log = function (msg) {
 
 // TODO consider making these functions not attributes
  
-engine.setupGame = function () {
+engine.setupGame = function (id1, id2) {
     // Add random words to fill up bank
+    engine.player1.userid = id1;
+    engine.player2.userid = id2;
+    var raw_word;
     var word;
     while (this.curr_words.length < this.MAX_WORDS) {
-        word = all_words[Math.floor(Math.random()*allWords.length()];
-        if (word && !(word[0] in start_letters)) {
+        raw_word = all_words[Math.floor(Math.random()*all_words.length)];
+        if (raw_word && !(raw_word[0] in start_letters)) {
+            word = makeWord(raw_word);
             this.curr_words.push(word);
-            start_letters[word[0]] = word;
+            start_letters[raw_word[0]] = word;
         }
     }
 };
@@ -46,7 +56,7 @@ engine.keyPressed = function (userid, ch) {
     }
     // because players are objects, these should be references
     var player, opp;
-    if (userid == this.player1.userid) [
+    if (userid == this.player1.userid) {
         player = this.player1;
         opp = this.player2;
     } else {
@@ -58,18 +68,18 @@ engine.keyPressed = function (userid, ch) {
         if (ch in start_letters) {
             var to_claim = start_letters[ch];
             if (opp.word == to_claim) {
-                this.log(to_claim " already claimed by " + opp.userid + "!");
+                this.log(to_claim.word + " already claimed by " + opp.userid + "!");
                 return; // TODO maybe a message about this to client?
             }
             player.word = to_claim;
-            player1.partial = ch;
+            player.partial = ch;
         }
     } else {
         // Check if next letter was typed
         // assumes partial is always a substring of the word
-        if (player.word[player.partial.length] == ch) {
+        if (player.word.word[player.partial.length] == ch) {
             player.partial += ch;
-            if (player.partial == player.word) {
+            if (player.partial == player.word.word) {
                 finishedWord(this, player);
             }
         } else {
@@ -78,9 +88,27 @@ engine.keyPressed = function (userid, ch) {
     }
 };
 
+engine.replaceWord = function (word) {
+    delete start_letters[word.word[0]];
+    // this removal is O(n) but it should be miniscule
+    var index = this.curr_words.indexOf(word);
+    if (index > -1) {
+        // Don't want to distub indices
+        delete this.curr_words[index];
+        var raw_word;
+        do {
+            raw_word = all_words[Math.floor(Math.random()*all_words.length)];
+        } while (raw_word[0] in start_letters);
+        var word = makeWord(raw_word);
+        this.curr_words[index] = word;
+        start_letters[raw_word[0]] = word;
+    }
+};
+
 // this game engine (might) be exposed to client,
 // so use a function with engine as argument
 function finishedWord(game_engine, player) {
+    player.score += player.word.score;
+    game_engine.replaceWord(player.word);
     player.word = null;
-    player.score += 1;
 }
