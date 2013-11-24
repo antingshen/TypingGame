@@ -39,7 +39,7 @@
 				<div class="scoreBox opponent" ng-bind="opponent.score"></div>
 			</div>
 		</div>
-		<div class="wordBox" ng-repeat="word in words" ng-style="wordStyle(word)">
+		<div class="wordBox" ng-repeat="word in words" ng-style="wordStyle(word)" ng-class="{'opponentWordBox':word.owner==1}">
 			<span class="typed" ng-bind="word.typed"></span><span class="remaining" ng-bind="word.remaining"></span>
 		</div>
 		<div class="start">START</div>

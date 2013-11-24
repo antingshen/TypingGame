@@ -3,16 +3,15 @@ angular.module('game', [])
 .controller('gameController',
 function($scope,$timeout){
 	s = $scope;
-
 	wordNum = -1;
 	alphabet = "abcdefghijklmnopqrstuvwxyz";
 	getTestWord = function(){
 		wordNum += 1;
 		var index = wordNum % 26;
-		return {
-			'word':alphabet.charAt(index)+'TestWord',
-			'score':1,
-		}
+		return { word:{
+                'word':alphabet.charAt(index)+'TestWord',
+                'score':1,
+            }};
 	}
 
 	GAME_HEIGHT = 600;
@@ -20,8 +19,8 @@ function($scope,$timeout){
 	WORD_HEIGHT = 50;
 	WORD_WIDTH = 100;
 
-	//var socket = io.connect('http://localhost');
 	$scope.words = [];
+	$scope.wordMap = {};
 	$scope.initials = {};
 
 
@@ -46,10 +45,21 @@ function($scope,$timeout){
 	}
 
 	function typeLetter(letter, player){
-		var correct = this.remaining.charAt(0);
+        console.log(letter);
+        var correct = this.remaining.charAt(0);
 		if (correct.toLowerCase()==letter){
 			this.typed += correct;
 			this.remaining = this.remaining.slice(1,this.remaining.length);
+			if (player.pid == 0){
+				$scope.socket.emit('key', 
+					{'word':this.word, 
+					'letter':letter,
+					'id':$scope.player.playerID,
+					}
+				)
+			}
+		} else {
+			return;
 		}
 		if (this.remaining.length == 0){
 			player.awardWord(this);
@@ -82,7 +92,8 @@ function($scope,$timeout){
 		}.bind(this), 500);
 	}
 
-	$scope.createWord = function(word){
+	$scope.createWord = function(data){
+        var word = data.word;
 		word.maxLife = word.maxLife || 1000;
 		word.life = word.maxLife;
 		word.Yoffset = -WORD_HEIGHT;
@@ -98,6 +109,7 @@ function($scope,$timeout){
 
 		$scope.words.push(word);
 		$scope.initials[word.word.charAt(0).toLowerCase()] = word;
+		$scope.wordMap[word.word] = word;
 		$timeout(word.wordTick);
 	}
 
@@ -131,7 +143,30 @@ function($scope,$timeout){
 			$scope.currentWord.typeLetter(letter, $scope.player);
 		}
 	}
+
+	$scope.opponentKey = function(obj){
+		var word = $scope.wordMap[obj.word];
+		if (word.owner != 1){
+			word.owner = 1;
+			word.remaining = word.word;
+			word.typed = "";
+		}
+		typeLetter.bind(word)(obj.letter, 1);
+	}
+
+	$scope.socket = io.connect('/');
+	$scope.socket.on('onconnected', function(data){
+		$scope.player.playerID = data.id;
+	})
+
+	$scope.socket.on('newWord', $scope.createWord);
+	// param: {word: String}
+
+	$scope.socket.on('opponentKey', $scope.opponentKey);
+	// param: {word: String, letter: String}
 })
+
+
 
 
 

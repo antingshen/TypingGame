@@ -1,4 +1,4 @@
-var engine = require('./gamecore.js');
+var engine = require('./gamecore.js')();
 
 engine.printStuff = function () {
     console.log(this.curr_words);

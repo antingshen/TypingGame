@@ -8,10 +8,11 @@ lobby.log = function (msg) {
 };
 
 lobby.findGame = function (player) {
+    // tries the match the player with a game
+    // returns the game the player is added to
     this.log('looking for a game for ' + player.userid);
     // if open game, add player to that game
     if (this.game_count) {
-        var joined_game = false;
         for (var gameid in this.games) {
             var game_instance = this.games[gameid];
             // only supports 2 player
@@ -22,16 +23,13 @@ lobby.findGame = function (player) {
                 game_instance.player_count += 1;
                 player.game = game_instance;
                 this.log(player.userid + ' joined game hosted by ' + game_instance.player_host.userid);
-                joined_game = true;
-                break;
+            } else {
+                // cannot find open game, host one
+                this.createGame(player);
             }
         }
-        if (!joined_game) {
-            // host a game
-            this.createGame(player);
-        }
     } else {
-        // no games, so host one
+        // cannot find any game, host one
         this.createGame(player);
     }
 };
@@ -43,7 +41,7 @@ lobby.createGame = function (player) {
         id: UUID(),
         player_host: player,
         player_client: null,
-        player_count: 1
+        player_count: 1,
     };
     this.games[newgame.id] = newgame
     this.game_count++;
