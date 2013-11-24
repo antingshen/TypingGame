@@ -1,9 +1,9 @@
 * {
-	font-family:Arial;
+	font-family: 'Signika Negative', sans-serif;
 
 }
 body {
-		background: #5DD0C0;
+		background: rgb(51,51,51);
 
 	position: relative;
 }
