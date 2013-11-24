@@ -1,5 +1,8 @@
 <html ng-app="game">
 	<head>
+		<script src="jquery-1.5.min.js"></script>
+		<script src="jquery-ui-1.8.9.custom.min.js"></script>
+		<script src="countdown.js"></script>
 		<script src="angular.min.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="app.js"></script>
@@ -7,14 +10,39 @@
 		
 	</head>
 	<body ng-controller="gameController" ng-click="bodyClick()">
-		<div class="control">Player 1:	
-			<div class="scoreBox player" ng-bind="player.score"></div>
-			Player 2:
-			<div class="scoreBox opponent" ng-bind="opponent.score"></div>
+		<div class="title">DAS TYPING GAME</div>
+		<div class="control">
+			<div class="playerWrap">
+				Player 1:	
+				<div class="scoreBox player" ng-bind="player.score"></div>
+			</div>
+			<div class= "clock">
+				<script type="text/javascript">
+
+					// $(document).ready(function(){
+					$(".start").click(function(){
+						console.log("gamestaart");
+					});
+					
+					function countdownComplete(){
+					// alert("yo dawg");
+					//tell server game over- lock players from typing
+					}
+					var myCountdown1 = new Countdown({time:90, rangeHi:"minute",rangeLo:"second", width:200, height:80, onComplete:countdownComplete});
+					// });
+
+
+				</script>
+			</div>
+			<div class = "opponentWrap">
+				Player 2:
+				<div class="scoreBox opponent" ng-bind="opponent.score"></div>
+			</div>
 		</div>
 		<div class="wordBox" ng-repeat="word in words" ng-style="wordStyle(word)">
 			<span class="typed" ng-bind="word.typed"></span><span class="remaining" ng-bind="word.remaining"></span>
 		</div>
+		<div class="start">START</div>
 		<input id="inputBox" autofocus type="text" ng-keypress="keyPressed($event)">
 	</body>
 </html>
