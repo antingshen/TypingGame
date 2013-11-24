@@ -26,7 +26,7 @@ function($scope,$timeout){
 
 	function awardWord(word){
 		this.score += word.score;
-	}
+	};
 	$scope.player = null;
 	var initPlayer = function(pid, num){
 		var player = {};
@@ -36,21 +36,19 @@ function($scope,$timeout){
 		$scope.player = player;
 		player.awardWord = awardWord.bind(player);
 		return player;
-	}
+	};
     $scope.socket = io.connect('/');
     // on initial connection, create player
     $scope.socket.on('onconnected', function (data) {
         console.log('Connected. ID = ' + data.id);
         initPlayer(data.id, data.num);
     });
-    
-        $scope.player = initPlayer(data.id);
-    });
-    $scope.opponent = initPlayer(1);
+    // Uh...this is kinda sketchy?
+    $scope.opponent = initPlayer(null, 1);
 	inputBox = document.getElementById('inputBox');
 	$scope.bodyClick = function(){
 		inputBox.focus();
-	}
+	};
 
 	function typeLetter(letter, player){
         var correct = this.remaining.charAt(0);
@@ -65,7 +63,7 @@ function($scope,$timeout){
 			player.awardWord(this);
 			this.destroy(this);
 		}
-	}
+	};
 
 	function destroy(){
 		$timeout.cancel(this.tick);
@@ -78,7 +76,7 @@ function($scope,$timeout){
 		$timeout(function(){
 			this.container.splice(index, 1);
 		}.bind(this), 500);
-	}
+	};
 
 	function wordTick(){
 		this.tick = $timeout(function(){
@@ -91,7 +89,7 @@ function($scope,$timeout){
 			this.Yoffset = (1-this.life/this.maxLife)*(GAME_HEIGHT+WORD_HEIGHT)-WORD_HEIGHT;
 			this.wordTick();
 		}.bind(this), 500);
-	}
+	};
 
 	$scope.createWord = function(data){
         var word = data.word;
@@ -112,11 +110,11 @@ function($scope,$timeout){
 		$scope.initials[word.word.charAt(0).toLowerCase()] = word;
 		$scope.wordMap[word.word] = word;
 		$timeout(word.wordTick);
-	}
+	};
 
 	var getXoffset = function(word_width){
 		return Math.random()*(GAME_WIDTH-word_width);
-	}
+	};
 
 	$scope.wordStyle = function(word){
 		style = {}
@@ -128,7 +126,7 @@ function($scope,$timeout){
 			style['-webkit-transform'] = style.transform;
 		}
 		return style;
-	}
+	};
 
 	$scope.keyPressed = function(event){
 		letter = String.fromCharCode(event.charCode).toLowerCase();
@@ -143,7 +141,7 @@ function($scope,$timeout){
 		if ($scope.currentWord){
 			$scope.currentWord.typeLetter(letter, $scope.player);
 		}
-	}
+	};
 
 	$scope.opponentKey = function(obj){
 		var word = $scope.wordMap[obj.word.word];
@@ -153,7 +151,7 @@ function($scope,$timeout){
 			word.typed = "";
 		}
 		typeLetter.bind(word)(obj.letter, 1);
-	}
+	};
 
 	$scope.timeRemaining = 90;
 	$scope.countdownStarted = false;
@@ -168,12 +166,12 @@ function($scope,$timeout){
 			$scope.timeRemaining -= 1;
 			$scope.timerTick();
 		},1000);
-	}
+	};
 	$scope.startTimer = function(){
 		$scope.countdownStarted = true;
 		$scope.socket.emit('startGame', {pid:$scope.player.pid});
 		$scope.timerTick();
-	}
+	};
 
 	$scope.socket.on('newWord', $scope.createWord);
 	// param: data = {word: word object}
@@ -223,12 +221,4 @@ function($scope,$timeout){
             $scope.currentWord.remaining = player.word.slice(player.partial.length);
         }
     });
-})
-
-
-
-
-
-
-
-
+});
